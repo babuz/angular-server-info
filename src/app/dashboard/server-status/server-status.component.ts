@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, DestroyRef, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, DestroyRef, OnInit, signal, effect } from '@angular/core';
 
 @Component({
   selector: 'app-server-status',
@@ -8,21 +8,26 @@ import { AfterViewInit, Component, inject, DestroyRef, OnInit } from '@angular/c
   styleUrl: './server-status.component.css'
 })
 export class ServerStatusComponent implements OnInit, AfterViewInit {
-  currentStatus: | 'online' | 'offline' | 'unknown' = 'online';
+  currentStatus = signal<'online' | 'offline' | 'unknown'>('online');
   private destroyRef = inject(DestroyRef);
 
-  constructor() { }
+  constructor() {
+    effect(() => {
+      //this will get invoked whenever any changes happened to this field since its signal
+      console.log(this.currentStatus())
+    })
+  }
 
   ngOnInit() {
     console.log('NG ON INIT');
     const intervel = setInterval(() => {
       const rand = this.getRandom(1, 3);
       if (rand === 1) {
-        this.currentStatus = 'online'
+        this.currentStatus.set('online')
       } else if (rand === 2) {
-        this.currentStatus = 'offline'
+        this.currentStatus.set('offline')
       } else if (rand === 3) {
-        this.currentStatus = 'unknown'
+        this.currentStatus.set('unknown')
       }
     }, 5000)
 
